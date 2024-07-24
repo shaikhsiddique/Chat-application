@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat-App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navigation Bar -->
+    <nav class="h-16 w-full bg-zinc-400 flex items-center justify-between px-4 shadow-md px-[5vw]">
+        <div class="flex items-center gap-4">
+            <img src="/images/logo.webp" alt="Chat-App Logo" class="h-16 w-16">
+            <h1 class="text-4xl font-light tracking-wide text-white kajiro">Chat-App</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="#" class="flex items-center text-white hover:underline"><i class="fa-solid fa-house"></i><span class="ml-1 hidden sm:inline">Home</span></a>
+            <a href="#" class="flex items-center text-white hover:underline"><i class="fa-solid fa-bell"></i><span class="ml-1 hidden sm:inline">Notify</span></a>
+            <a href="/logout" class="flex items-center text-white hover:underline"><i class="fa-solid fa-user"></i><span class="ml-1 hidden sm:inline" id="Account"><%= user.username%></span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="flex h-[90vh] mx-auto max-w-screen-lg">
+        <!-- Sidebar (List of Chats) -->
+        <aside class="w-full sm:w-1/3 bg-gray-200 p-4 border-r border-gray-300 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Chats</h2>
+                <div class="flex gap-4">
+                    <button onclick="toggleCreateChatModal()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow">Create Chat</button>
+                    <button onclick="toggleJoinChatModal()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow">Join Chat</button>
+                </div>
+            </div>
+            <div class="chat-list space-y-2">
+                <% groups.forEach((item) => { %>
+                    <div class="chat-item p-2 bg-white rounded shadow hover:bg-gray-50 cursor-pointer border border-gray-300" data-id="<%= item._id %>" data-name="<%= item.name %>">
+                        <p class="text-lg"><%= item.name %></p>
+                        <% if (user.group.includes(item._id)) { %>
+                            <span class="joined-status text-green-500"><i class="fa-solid fa-check"></i> Joined</span>
+                        <% } %>
+                    </div>
+                <% }); %>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Chat Header -->
+            <div class="bg-white p-4 border-b border-gray-300 shadow-md">
+                <h2 class="text-2xl font-semibold" id="chat-name"></h2>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-100 space-y-2 shadow-inner">
+                <!-- Example message -->
+                <div class="message w-[43vw] " id="message-con">
+                </div>
+                <!-- More messages can be added here -->
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="bg-white p-4 border-t border-gray-300 flex items-center space-x-2 shadow-md">
+                <input type="text" placeholder="Type a message" class="flex-1 p-2 border border-gray-300 rounded-lg shadow" id="message-text" />
+                <button class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow" id="send-message-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Chat -->
+    <div id="createChatModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-2xl font-semibold mb-4">Create Chat</h2>
+            <form method="post" action="/create-group">
+                <div class="mb-4">
+                    <label for="createChatName" class="block text-gray-700">Chat Name</label>
+                    <input type="text" id="createChatName" class="w-full p-2 border border-gray-300 rounded-lg shadow" name="group_name">
+                </div>
+                <div class="mb-4">
+                    <label for="createChatPassword" class="block text-gray-700">Password</label>
+                    <input type="password" id="createChatPassword" class="w-full p-2 border border-gray-300 rounded-lg shadow" name="group_password">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="toggleCreateChatModal()" class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 shadow">Cancel</button>
+                    <button type="submit" id="createGroup-btn" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 shadow">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Joining Chat -->
+    <div id="joinChatModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-2xl font-semibold mb-4">Join Chat</h2>
+            <form id="joinChatForm" method="POST" action="/join-group">
+                <div class="mb-4">
+                    <label for="joinChatName" class="block text-gray-700">Chat Name</label>
+                    <input type="text" id="joinChatName" name="group_name" class="w-full p-2 border border-gray-300 rounded-lg shadow">
+                </div>
+                <div class="mb-4">
+                    <label for="joinChatPassword" class="block text-gray-700">Password</label>
+                    <input type="password" id="joinChatPassword" name="group_password" class="w-full p-2 border border-gray-300 rounded-lg shadow">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="toggleJoinChatModal()" class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 shadow">Cancel</button>
+                    <button type="submit" id="join-btn" class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 shadow">Join</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>
