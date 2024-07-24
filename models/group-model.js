@@ -18,17 +18,6 @@ const groupSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    chats: [{
-        message: String,
-        sender: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
-    }]
 });
 
 const validateGroupModel = (data) => {

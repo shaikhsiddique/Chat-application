@@ -16,22 +16,17 @@ route.post('/', async (req, res) => {
         if (!user) {
             return res.status(400).send("User not found");
         }
-
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).send("Invalid password");
         }
-        
         const token = generateToken(user._id);
-
         res.cookie("token", token, {
             expires: new Date(Date.now() + 3600000 * 24 * 30),
             httpOnly: true,
             secure: true,
             sameSite: 'Strict'
         });
-
-        
         res.redirect('/'); // Redirect to home or another page
     } catch (err) {
         console.error('Error during login:', err.message);

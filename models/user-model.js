@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema({
         ref: 'Group',
     }],
 });
-
 const validateUserModel = (data) => {
     const schema = Joi.object({
         username: Joi.string().min(3).max(30).required(),
